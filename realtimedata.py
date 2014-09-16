@@ -6,12 +6,12 @@ This script plots real time serial data on a left-scrolling chart.
 
 Expected Serial Data Format:
 
-time	x1		x2		...		xn
- |		|		|		...		|
- v		v		v		...		v
+time    x1      x2      ...     xn
+ |      |       |       ...     |
+ v      v       v       ...     v
 x.x \t  x.x \t  x.x \t 	...\t   x.x \n
 x.x \t  x.x \t  x.x \t 	...\t   x.x \n
-x.x \t  x.x \t  x.x \t 	...\t   x.x \n
+x.x \t  x.x \t  x.x \t  ...\t   x.x \n
 '''
 
 import numpy as np

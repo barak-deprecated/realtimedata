@@ -23,8 +23,8 @@ from collections import deque
 PORT_NAME = '/dev/tty.usbmodem411'
 BAUDRATE = 115200
 
-# create a deque storage container for quick data storage
-data_storage = deque()
+# create list to store data
+data_storage = []
 
 # wait for the user to hit enter before beginning data collection
 start = input("Press <enter> to start collecting data")
@@ -43,7 +43,7 @@ print("Beginning data collection... press <enter> to stop...")
 
 # loop will run until user hits enter
 while True:
-    data_storage.append(ser.readline())  # add the data to the right side of deque
+    data_storage.append(ser.readline())
     if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
         line = input()
         break
@@ -54,7 +54,7 @@ ser.close()
 print("Data collection finished, serial port closed.")
 print("Processing data...")
 
-# pull the data out of the deque storage container and split the lines of characters
+# pull the data out of the data storage and split the lines of characters
 # also, filter out empty lines (which can come when first reading the input buffer)
 data_matrix = [line.split() for line in data_storage if line]
 # convert the list of lists of byte literals into a list of lists of floats

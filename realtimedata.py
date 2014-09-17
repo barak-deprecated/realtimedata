@@ -23,8 +23,8 @@ import serial
 # constants
 PORT_NAME = '/dev/tty.usbmodem411'
 BAUDRATE = 9600
-NUM_OF_LINES = 2  # script expects 1 + num_of_lines data columns (1 for time)
-XAXIS_RANGE = 100.0
+NUM_OF_LINES = 1  # script expects 1 + num_of_lines data columns (1 for time)
+XAXIS_RANGE = 10.0
 
 # function that will drive the animation of FuncAnimation
 # FuncAnimation mistakenly passes in an argument to animate, hence *args to absorb it

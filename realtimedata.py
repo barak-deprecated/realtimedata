@@ -88,13 +88,13 @@ def process_buffer(buf, number_of_lines):
     (Data in the buffer is stored as lines of byte literals, and we want 
     columns of floats.)
     """
-    # Split the byte literal lines into lists of byte literals
+    # Split the byte literal lines into lists of byte literals.
     data = [line.split() for line in buf if line]
     
-    # Convert each byte literal into a float
+    # Convert each byte literal into a float.
     data = [[float(value) for value in row] for row in data]    
     
-    # Transpose the data matrix
+    # Transpose the data matrix (it works better with update_plot like this).
     cols = []
     for j in range(number_of_lines + 1):
         col = [row[j] for row in data]

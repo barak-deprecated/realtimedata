@@ -145,10 +145,7 @@ def main():
 	    # Read a line from the serial input buffer and add it to our own buffer
 		buffer.append(ser.readline())    
 		
-		# Keep adding to our own buffer until we reach the user defined buffer
-		# size. This significantly reduces the frequency with which matplotlib
-		# has to draw the plot, allowing the program to keep up with incoming
-		# data from the serial port.
+		# Flush the buffer if it reaches it's maximum size
 		if len(buffer) >= BUFFER_SIZE:
 			columns = process_buffer(buffer, NUM_OF_LINES)
 			update_plot(lines, columns, XAXIS_RANGE)

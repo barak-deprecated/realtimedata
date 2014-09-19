@@ -21,7 +21,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
-PORT_NAME = '/dev/tty.usbmodem411'    # serial port name depends on system
+PORT_NAME = 'COM3'    # serial port name depends on system
 BAUDRATE = 9600
 
 # Buffer size is in terms of number of "serial data rows to collect before  

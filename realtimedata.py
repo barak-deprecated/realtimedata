@@ -38,39 +38,39 @@ XAXIS_RANGE = 10.0
 
 
 def initialize_plot(number_of_lines):
-	"""
-	Set up the matplotlib figure to be plotted, collect the data labels
-	from user, and return the line handles.
-	"""
-	plt.ion()    # "interactive mode" - allows for continuous editing
-	
-	line_objects = [] 
-	labels = []
-	
-	# Create the line objects that will be plotted in real time.
-	for i in range(number_of_lines):
-		line, = plt.plot([], [])
-		line_objects.append(line)
-		label = input("Enter label for data in column " + str(i+2) + ": ")
-		labels.append(label)
-	
-	# Create the plot legend, attaching the labels to their corresponding lines.
-	plt.legend(line_objects,
-			   labels,
-			   loc='upper center',
-			   prop={'size':10},
-			   bbox_to_anchor=(0.5, 1.07),
-			   ncol=3,
-			   )
-	
-	# Actually draw the plot on screen, without blocking the progress of script.
-	plt.show(block=False)
-	
-	# The plot updates constantly, making it hard to resize the window. Also,
-	# I was having issues with the matplotlib API, so this is a quick fix...
-	input("Adjust plot window size now, then hit <enter>...")
-	
-	return line_objects
+    """
+    Set up the matplotlib figure to be plotted, collect the data labels
+    from user, and return the line handles.
+    """
+    plt.ion()    # "interactive mode" - allows for continuous editing
+    
+    line_objects = [] 
+    labels = []
+    
+    # Create the line objects that will be plotted in real time.
+    for i in range(number_of_lines):
+        line, = plt.plot([], [])
+        line_objects.append(line)
+        label = input("Enter label for data in column " + str(i+2) + ": ")
+        labels.append(label)
+    
+    # Create the plot legend, attaching the labels to their corresponding lines.
+    plt.legend(line_objects,
+               labels,
+               loc='upper center',
+               prop={'size':10},
+               bbox_to_anchor=(0.5, 1.07),
+               ncol=3,
+               )
+    
+    # Actually draw the plot on screen, without blocking the progress of script.
+    plt.show(block=False)
+    
+    # The plot updates constantly, making it hard to resize the window. Also,
+    # I was having issues with the matplotlib API, so this is a quick fix...
+    input("Adjust plot window size now, then hit <enter>...")
+    
+    return line_objects
            
 def refresh_serial_port(serial_port):
     """
@@ -128,39 +128,39 @@ def update_plot(line_objects, cols, x_range):
 
 
 def main():
-	buffer = []
+    buffer = []
 
-	print("Initializing plot and lines...")
-	lines = initialize_plot(NUM_OF_LINES)
+    print("Initializing plot and lines...")
+    lines = initialize_plot(NUM_OF_LINES)
 
-	print("Opening serial port " + 
-		  PORT_NAME + " at " + str(BAUDRATE) + " baudrate...")           
-	ser = serial.Serial(port=PORT_NAME, baudrate=BAUDRATE, timeout=1)
+    print("Opening serial port " + 
+          PORT_NAME + " at " + str(BAUDRATE) + " baudrate...")           
+    ser = serial.Serial(port=PORT_NAME, baudrate=BAUDRATE, timeout=1)
 
-	print("Beginning data collection...")
-	print("Press <enter> to stop...")
-	refresh_serial_port(ser)
+    print("Beginning data collection...")
+    print("Press <enter> to stop...")
+    refresh_serial_port(ser)
 
-	while True:
-	    # Read a line from the serial input buffer and add it to our own buffer
-		buffer.append(ser.readline())    
-		
-		# Flush the buffer if it reaches it's maximum size
-		if len(buffer) >= BUFFER_SIZE:
-			columns = process_buffer(buffer, NUM_OF_LINES)
-			update_plot(lines, columns, XAXIS_RANGE)
-			buffer = []
-		
-		# This little diddly allows the user to hit <enter> to quit the loop
-		if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
-			line = input()
-			break
+    while True:
+        # Read a line from the serial input buffer and add it to our own buffer
+        buffer.append(ser.readline())    
+        
+        # Flush the buffer if it reaches it's maximum size
+        if len(buffer) >= BUFFER_SIZE:
+            columns = process_buffer(buffer, NUM_OF_LINES)
+            update_plot(lines, columns, XAXIS_RANGE)
+            buffer = []
+        
+        # This little diddly allows the user to hit <enter> to quit the loop
+        if sys.stdin in select.select([sys.stdin], [], [], 0)[0]:
+            line = input()
+            break
     
     # Close the serial port, preventing the port from being frozen.
-	print("Closing serial port...")        
-	ser.close()
+    print("Closing serial port...")        
+    ser.close()
 
 
 # Call the main function
 if __name__ == '__main__':
-  main()
+    main()

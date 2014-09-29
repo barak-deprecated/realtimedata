@@ -42,30 +42,30 @@ XAXIS_RANGE = 10.0
 
 
 def initialize_plot(number_of_lines):
-	"""
-	Set up the matplotlib figure to be plotted, collect the data labels
-	from user, and return the line handles.
-	"""
-	line_objects = [] 
-	labels = []
-	
-	# Create the line objects that will be plotted in real time.
-	for i in range(number_of_lines):
-		line, = plt.plot([], [])
-		line_objects.append(line)
-		label = input("Enter label for data in column " + str(i+2) + ": ")
-		labels.append(label)
-	
-	# Create the plot legend, attaching the labels to their corresponding lines.
-	plt.legend(line_objects,
-			   labels,
-			   loc='upper center',
-			   prop={'size':10},
-			   bbox_to_anchor=(0.5, 1.07),
-			   ncol=3,
-			   )
-	
-	return line_objects
+    """
+    Set up the matplotlib figure to be plotted, collect the data labels
+    from user, and return the line handles.
+    """
+    line_objects = [] 
+    labels = []
+    
+    # Create the line objects that will be plotted in real time.
+    for i in range(number_of_lines):
+        line, = plt.plot([], [])
+        line_objects.append(line)
+        label = input("Enter label for data in column " + str(i+2) + ": ")
+        labels.append(label)
+    
+    # Create the plot legend, attaching the labels to their corresponding lines.
+    plt.legend(line_objects,
+               labels,
+               loc='upper center',
+               prop={'size':10},
+               bbox_to_anchor=(0.5, 1.07),
+               ncol=3,
+               )
+    
+    return line_objects
            
 def refresh_serial_port(serial_port):
     """
@@ -118,9 +118,12 @@ def update_plot(line_objects, cols, x_range):
     ax.relim()
     ax.autoscale_view()
     
-def animate(buffer, ser, lines, *args):
+def animate(framedata, buffer, ser, lines, *args):
     """
     This is the function that drives the animation of the plotting.
+    
+    NOTE - FuncAnimation first passes an integer "framedata" to animate, hence 
+    the argument "framedata" to absorb it.
     """
     global BUFFER_SIZE, NUM_OF_LINES, XAXIS_RANGE
     
@@ -129,41 +132,41 @@ def animate(buffer, ser, lines, *args):
 
     # Flush the buffer if it reaches it's maximum size
     if len(buffer) >= BUFFER_SIZE:
-		columns = process_buffer(buffer, NUM_OF_LINES)
-		update_plot(lines, columns, XAXIS_RANGE)
-		buffer[:] = []
+        columns = process_buffer(buffer, NUM_OF_LINES)
+        update_plot(lines, columns, XAXIS_RANGE)
+        buffer[:] = []
 
 
 def main():
-	buffer = []
+    buffer = []
 
-	print("Initializing plot and lines...")
-	lines = initialize_plot(NUM_OF_LINES)
+    print("Initializing plot and lines...")
+    lines = initialize_plot(NUM_OF_LINES)
 
-	print("Opening serial port " + 
-		  PORT_NAME + " at " + str(BAUDRATE) + " baudrate...")           
-	ser = serial.Serial(port=PORT_NAME, baudrate=BAUDRATE, timeout=1)
+    print("Opening serial port " + 
+          PORT_NAME + " at " + str(BAUDRATE) + " baudrate...")           
+    ser = serial.Serial(port=PORT_NAME, baudrate=BAUDRATE, timeout=1)
 
-	print("Beginning data collection...")
-	print("Press <enter> to stop...")
-	refresh_serial_port(ser)
+    print("Beginning data collection...")
+    print("Press <enter> to stop...")
+    refresh_serial_port(ser)
     
-	fig = plt.gcf()     # "gcf" stands for "get current figure"
-	
-	# Animate the plot by repeatedly calling animate, passing it fargs
-	ani = FuncAnimation(fig, 
-	                    animate, 
-	                    fargs=[buffer, ser, lines], 
-	                    interval=REDRAW_INTERVAL,
-	                    )
+    fig = plt.gcf()     # "gcf" stands for "get current figure"
+    
+    # Animate the plot by repeatedly calling animate, passing it fargs
+    ani = FuncAnimation(fig, 
+                        animate, 
+                        fargs=[buffer, ser, lines], 
+                        interval=REDRAW_INTERVAL,
+                        )
     
     plt.show()
     
     # Close the serial port, preventing the port from being frozen.
-	print("Closing serial port...")        
-	ser.close()
+    print("Closing serial port...")        
+    ser.close()
 
 
 # Call the main function
 if __name__ == '__main__':
-  main()
+    main()

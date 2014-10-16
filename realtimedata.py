@@ -16,7 +16,7 @@ Last updated: 9/17/14
 Author: Barak Alon
 '''
 
-import serial, time, sys, select
+import serial, time, sys, select, csv
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -29,15 +29,12 @@ BAUDRATE = 9600
 # incoming serial data, increase the buffer size.
 BUFFER_SIZE = 5  
 
-# This is the number of data streams to plot (should be one less than columns).
-NUM_OF_LINES = 3  
-
 # X-Axis Range is the size of the x-limits to keep on screen as the chart 
 # scrolls. If data is in seconds, this is how long a data point is on screen.
 XAXIS_RANGE = 10.0  
 
 
-def initialize_plot(number_of_lines):
+def initialize_plot():
     """
     Set up the matplotlib figure to be plotted, collect the data labels
     from user, and return the line handles.
@@ -46,6 +43,8 @@ def initialize_plot(number_of_lines):
     
     line_objects = [] 
     labels = []
+    
+    number_of_lines = int(input("Enter number of lines to plot: "))
     
     # Create the line objects that will be plotted in real time.
     for i in range(number_of_lines):
@@ -70,7 +69,7 @@ def initialize_plot(number_of_lines):
     # I was having issues with the matplotlib API, so this is a quick fix...
     input("Adjust plot window size now, then hit <enter>...")
     
-    return line_objects
+    return line_objects, number_of_lines, labels
            
 def refresh_serial_port(serial_port):
     """
@@ -126,12 +125,30 @@ def update_plot(line_objects, cols, x_range):
     # Finally, take all this new data and redraw the plot on screen.
     plt.draw()
 
+def lines_to_table(line_objects):
+    """
+    Take the x and y data of matplotlib line objects and convert it to a table
+    that can easily be copied to a .csv file.
+    """
+    for i, line in enumerate(line_objects):
+        # We only need the x values once, so we'll use the first line's data.
+        # We will also use the x values to initialize a list of lists.
+        if i == 0:
+            xdata = line.get_xdata().tolist()
+            table = [[value] for value in xdata]
+        
+        ydata = line.get_ydata().tolist()
+        for row, value in zip(table, ydata):
+            row.append(value)
+    
+    return table   
+
 
 def main():
     buffer = []
 
     print("Initializing plot and lines...")
-    lines = initialize_plot(NUM_OF_LINES)
+    lines, num_of_lines, line_headers = initialize_plot()
 
     print("Opening serial port " + 
           PORT_NAME + " at " + str(BAUDRATE) + " baudrate...")           
@@ -147,7 +164,7 @@ def main():
         
         # Flush the buffer if it reaches it's maximum size
         if len(buffer) >= BUFFER_SIZE:
-            columns = process_buffer(buffer, NUM_OF_LINES)
+            columns = process_buffer(buffer, num_of_lines)
             update_plot(lines, columns, XAXIS_RANGE)
             buffer = []
         
@@ -159,7 +176,29 @@ def main():
     # Close the serial port, preventing the port from being frozen.
     print("Closing serial port...")        
     ser.close()
-
+    
+    # Ask the user wether or not to save the data
+    save = input("Save the data [Y/N]?\n")
+    
+    if save.lower() == ('y' or 'yes'):
+        # We need to convert the line data back into tabular format
+        # (Saving it during plotting would decrease performance speed)
+        data_table = lines_to_table(lines)
+            
+        filename = input("What would you like to name the .csv file?\n")
+        filename = filename + ".csv"
+        
+        # Create a .csv file containing the data in data_table
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["time"] + line_headers)
+            writer.writerows(data_table)
+            f.close()
+            
+        print(filename + " created in same directory.\nGoodbye")
+    else:
+        print("OK then.\nGoodbye")
+        
 
 # Call the main function
 if __name__ == '__main__':
